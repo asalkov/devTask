@@ -5,6 +5,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 public class TestConcurrency {
 
     private ExecutionAlgorithm executionAlgorithm;
@@ -16,7 +19,20 @@ public class TestConcurrency {
     @Test
     public void notSupportedProduct(){
         Price price = new Price("A", 100L);
-        Assert.assertNull(executionAlgorithm.buildTradeOrNull(price));
+        assertNull(executionAlgorithm.buildTradeOrNull(price));
+    }
+
+    @Test
+    public void normal(){
+        assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 1L)));
+        assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 2L)));
+        assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 3L)));
+        assertNotNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 4L)));
+        assertNotNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 5L)));
+
+        executionAlgorithm.buildTradeOrNull(new Price("IBM", 6L));
+        assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 4L)));
+
     }
 
     @Test

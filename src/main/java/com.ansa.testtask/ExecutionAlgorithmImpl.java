@@ -8,7 +8,7 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
     class Record{
         private String productName;
-        private LinkedList<Long> lastPrices;
+        private LinkedList<Long> lastPrices = new LinkedList<>();
 
         public Record(String productName) {
             this.productName = productName;
@@ -28,6 +28,7 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
     }
 
     public Trade buildTradeOrNull(Price price) {
+        Trade trade = null;
         if (!supportedProductNames.contains(price.getProductName())){
             System.err.println("Product with name " + price.getProductName() + " is not supported");
             return null;
@@ -41,7 +42,10 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
         }
 
-
+        if (record.lastPrices.size() < 3){
+            record.lastPrices.add(price.getPrice());
+            return trade;
+        }
 
 
 
@@ -61,10 +65,28 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
         // lock
         lockProduct(price.getProductName());
 
+        record.lastPrices.add(price.getPrice());
+        if (record.lastPrices.size() > 4) {
+            record.lastPrices.pollFirst();
+        }
 
+
+        long avg = caclAvg(record.lastPrices);
+
+        if (avg > record.lastPrices.peek()){
+            trade = new Trade(price.getProductName(), price.getPrice(), Direction.BUY, 1000L);
+        }
         // unlock
         unlockProduct(price.getProductName());
-        return null;
+        return trade;
+    }
+
+    private long caclAvg(LinkedList<Long> lastPrices) {
+        long sum = 0;
+        for (long price : lastPrices){
+            sum +=price;
+        }
+        return sum/4;
     }
 
     public static void log(String message){
