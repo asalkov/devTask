@@ -3,6 +3,7 @@ package com.ansa.testtask;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
@@ -14,6 +15,8 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
             this.productName = productName;
         }
     }
+
+    private ReentrantLock lock = new ReentrantLock();
     private Set<String> supportedProductNames = new HashSet<>();
     private ConcurrentHashMap<String, Boolean> productState = new ConcurrentHashMap<>();
 
@@ -29,6 +32,7 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
     public Trade buildTradeOrNull(Price price) {
         Trade trade = null;
+        String productName =  price.getProductName();
         if (!supportedProductNames.contains(price.getProductName())){
             System.err.println("Product with name " + price.getProductName() + " is not supported");
             return null;
@@ -42,28 +46,15 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
         }
 
+
+        lockOrWaitProduct(productName);
+
+
         if (record.lastPrices.size() < 3){
             record.lastPrices.add(price.getPrice());
+            unlockProduct(productName);
             return trade;
         }
-
-
-
-        if (isLocked(price.getProductName())){
-            // loop while locked
-            boolean doRun = true;
-            while (doRun){
-                doRun = productState.get(price.getProductName());
-                try {
-                    Thread.currentThread().sleep(100);
-                } catch (InterruptedException e) {
-                    System.err.println("Thread is interrupted");
-                }
-            }
-        }
-
-        // lock
-        lockProduct(price.getProductName());
 
         record.lastPrices.add(price.getPrice());
         if (record.lastPrices.size() > 4) {
@@ -77,7 +68,7 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
             trade = new Trade(price.getProductName(), price.getPrice(), Direction.BUY, 1000L);
         }
         // unlock
-        unlockProduct(price.getProductName());
+        unlockProduct(productName);
         return trade;
     }
 
@@ -94,6 +85,26 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
 
     }
 
+    private void lockOrWaitProduct(String productName){
+        lock.lock();
+        if (isLocked(productName)){
+            log("product is locked. wait");
+            boolean doRun = true;
+            while (doRun){
+                doRun = productState.get(productName);
+                try {
+                    Thread.currentThread().sleep(100);
+                } catch (InterruptedException e) {
+                    System.err.println("Thread is interrupted");
+                }
+            }
+        }
+
+        log("locked product");
+
+        productState.put(productName, true);
+        lock.unlock();
+    }
     private boolean isLocked(String productName){
         return productState.get(productName).equals(Boolean.TRUE);
 
@@ -103,6 +114,7 @@ public class ExecutionAlgorithmImpl implements ExecutionAlgorithm {
     }
 
     private void unlockProduct(String productName){
+        log("Unlock product");
         productState.put(productName, false);
     }
 }

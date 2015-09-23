@@ -60,8 +60,6 @@ public class TestConcurrency {
         thTwo.setName("thTwo");
 
         thOne.start();
-
-        //Thread.currentThread().sleep(10);
         thTwo.start();
 
         thOne.join();
@@ -93,7 +91,6 @@ public class TestConcurrency {
 
         thOne.start();
 
-        //Thread.currentThread().sleep(10);
         thTwo.start();
 
         thOne.join();
