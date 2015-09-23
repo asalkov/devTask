@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNull;
 public class ExecutionAlgorithmImplTest {
 
     private ExecutionAlgorithm executionAlgorithm;
+
     @Before
     public void init(){
         executionAlgorithm = new ExecutionAlgorithmImpl(new String[]{"IBM", "APPL"});
@@ -33,7 +34,6 @@ public class ExecutionAlgorithmImplTest {
 
     }
 
-    @Test
     public void testNoLock() throws InterruptedException {
         final Price priceOne = new Price("IBM", 100L);
         final Price priceTwo = new Price("APPL", 200L);
@@ -62,7 +62,6 @@ public class ExecutionAlgorithmImplTest {
 
     }
 
-    @Test
     public void testLockBySymbol() throws InterruptedException {
         final Price price = new Price("IBM", 100L);
 
