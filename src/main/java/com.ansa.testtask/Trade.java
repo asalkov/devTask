@@ -2,8 +2,8 @@ package com.ansa.testtask;
 
 public class Trade {
     private String productName;
-    private Long price;
-    private Long quantity;
+    private long price;
+    private long quantity;
     private Direction direction;
 
 
@@ -22,19 +22,19 @@ public class Trade {
         this.productName = productName;
     }
 
-    public Long getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
-    public Long getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 

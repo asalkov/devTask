@@ -4,6 +4,7 @@ package com.ansa.testtask;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -27,9 +28,23 @@ public class ExecutionAlgorithmImplTest {
         assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 1L)));
         assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 2L)));
         assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 3L)));
-        assertNotNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 4L)));
-        assertNotNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 5L)));
+        Trade trade = (executionAlgorithm.buildTradeOrNull(new Price("IBM", 4L)));
+
+        assertEquals(Direction.BUY, trade.getDirection());
+        assertEquals(4L, trade.getPrice());
+        assertEquals("IBM", trade.getProductName());
+        assertEquals(1000, trade.getQuantity());
+
+        trade = executionAlgorithm.buildTradeOrNull(new Price("IBM", 5L));
+
+        assertEquals(Direction.BUY, trade.getDirection());
+        assertEquals(5L, trade.getPrice());
+        assertEquals("IBM", trade.getProductName());
+        assertEquals(1000, trade.getQuantity());
+
         executionAlgorithm.buildTradeOrNull(new Price("IBM", 6L));
+
+
         assertNull(executionAlgorithm.buildTradeOrNull(new Price("IBM", 4L)));
 
     }
